@@ -15,4 +15,4 @@ selector.wakeup();      //唤醒selector
 selector.selectNow();   //不阻塞，立马返还
 
 
-2.
+2.而
