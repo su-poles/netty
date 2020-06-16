@@ -1,0 +1,18 @@
+一、Selector, 也叫做多路复用器， Selector是一个抽象类。常用方法如下：
+public abstract class Selector implements Closeable{
+    public abstract static Selector open();  //得到一个选择器对象
+    public abstract int select(long timeout); //监控所有注册的通道，当其中有IO操作可以进行时，将对应的SelectionKey加入到内部集合中并返回，参数用来设置超时时间
+    public Set<SelectionKey> selectedKeys; //内部集合，存储所有的selectionKey
+}
+
+
+select() 方法是个阻塞方法，可以传入一个timeout
+selectNow() 是个非阻塞方法
+
+selector.select();      //阻塞，select返回的是当前有事件发生的selectionKey
+selector.select(1000);  //阻塞1000毫秒
+selector.wakeup();      //唤醒selector
+selector.selectNow();   //不阻塞，立马返还
+
+
+2.
