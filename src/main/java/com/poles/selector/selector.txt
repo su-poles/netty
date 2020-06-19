@@ -30,3 +30,4 @@ selector.selectNow();   //不阻塞，立马返回
 以上东西用人话总结一下：
    1. 客户端与服务器端连接，服务器端是ServerSocketChannel, 客户端是SocketChannel
    2. 正常来说，服务器端与客户端是一一对应
+   3.
