@@ -1,0 +1,33 @@
+一、Selector, 也叫做多路复用器， Selector是一个抽象类。常用方法如下：
+public abstract class Selector implements Closeable{
+    public abstract static Selector open();  //得到一个选择器对象
+    public abstract int select(long timeout); //监控所有注册的通道，当其中有IO操作可以进行时，将对应的SelectionKey加入到内部集合中并返回，参数用来设置超时时间
+    public Set<SelectionKey> selectedKeys; //内部集合，存储所有的selectionKey
+}
+
+
+select() 方法是个阻塞方法，可以传入一个timeout
+selectNow() 是个非阻塞方法
+
+selector.select();      //阻塞，select返回的是当前有事件发生的selectionKey
+selector.select(1000);  //阻塞1000毫秒
+selector.wakeup();      //唤醒selector
+selector.selectNow();   //不阻塞，立马返回
+
+
+2. NIO非阻塞网络编程原理分析
+（1）当客户端连接是，会通过ServerSocketChannel得到SocketChannel对象
+（2）将socketChannel注册（register方法）到多路复用器（selector上）， 一个selector可以注册多个SocketChannel
+（3）注册后返回一个SelectionKey
+（4）Selector进行监听select方法，返回有事件发生的通道的个数
+（5）通道的事件总共有四种，可以在SelectionKey类中查看：
+        ①OP_READ ：读事件
+        ②OP_WRITE ：写事件
+        ③OP_CONNECT ：连接事件。 3次握手建立连接。
+        ④OP_ACCEPT ：连接事件。报文传输时的连接。
+（6）如果有事件发生的个数 > 0, 则selector根据有事件发生的SelectionKey通过channel()方法获取SocketChannel，完成业务处理
+
+以上东西用人话总结一下：
+   1. 客户端与服务器端连接，服务器端是ServerSocketChannel, 客户端是SocketChannel
+   2. 正常来说，服务器端与客户端是一一对应， 但在NIO中，一个服务端对应多个客户端，响应时通过selector来确定到底为哪个客户端服务。
+   3. 客户端有事件发生，则selector会通过某种方式知道这个事件，然后让该事件与服务端进行交互发生关系。

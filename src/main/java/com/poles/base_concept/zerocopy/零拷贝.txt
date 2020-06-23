@@ -1,0 +1,106 @@
+PPT 第48页：
+
+一、NIO与零拷贝
+ (0) 零拷贝，指的是CPU拷贝（DMA是无法避免的，从硬件读取文件，或者对硬盘、网络等写入数据绝对不可能避免）
+
+（1）零拷贝是网络编程的关键，很多性能优化都离不开零拷贝
+
+（2）在Java程序里，常用的零拷贝有mmap和sendFile两种
+
+（3）NIO中的零拷贝
+
+
+二、传统数据读写
+    DMA： direct memeory access  , 直接内存拷贝（不使用 CPU）
+
+
+    //******************************************示例代码内容*********************************************
+    //* 0.
+    //* 1. File file = new File("test.txt");
+    //* 2. RandomAccessFile raf = new RandomAccessFile(file, "rw");    //创建RandomAccessFile对象，还没开始真正的拷贝
+    //* 3.
+    //* 4. byte[] arr = new byte[(int)file.length()];    //创建一个自己数据，总大小为文件长度
+    //* 5. raf.read(arr);                                //写入字节数组， 开始真正的拷贝，文件从硬盘到内存
+    //* 6.
+    //* 7. Socket socket = new ServerSocket(8080).accept();  //获取一个客户端连接
+    //* 8. socket.getOutputStream().write(arr);              //通过网络发送给客户端
+    //* 9.
+    //******************************************示例代码内容*********************************************
+
+
+    （1） 用户态与内核态的转换：
+    	 ① 第1-3行，首先代码肯定是在用户态
+    	 ② 第5行，需要从硬盘将文件内容读取到内存中，这里有一个从用户态都内核态的转换，拷贝完成，文件内容在内存中通过arr引用，此时又从内核态转换为了用户态
+    	 ③ 代码继续执行，第8行，将数据发送给协议引擎（protocol engine），这里就是网卡，又从用户态转到了内核态
+
+    	 综上所述：以上代码一共发生了三次转换， 用户态 -> 内核态 -> 用户态 -> 内核态
+
+
+    （2） 以上代码，总共发生了多少次拷贝？
+    	 ① 第5行进行了一次DMA拷贝（不经过CPU，直接内存拷贝）和一次CPU拷贝，从硬盘到内存： Hard drive -> kernel buffer -> user buffer
+    	 ② 第8行，经过一次CPU拷贝和一次DMA拷贝：user buffer -> socket buffer -> protocol engine（网卡，协议栈，想想TCP的7层模型，一层一层往下走）
+
+    	 综上所述： Hard drive --(DMA)--> kernel buffer --(CPU)--> user buffer --(CPU)--> socket buffer --(DMA)--> protocol engine
+
+
+     (3) 综述：以上代码做了3次状态转换，4次拷贝
+
+
+ 三、MMAP
+ 	mmap通过内存映射，将文件映射到内核缓冲区，同时，用户空间可以共享内核空间的数据，这样，在进行网络传输时，就可以减少内核空间到用户空间的拷贝次数。
+
+
+ 	我们可以将kernel buffer映射到user buffer, 减少一次CPU拷贝， user buffer修改完内容时(用户态)，实际等价于kernel buffer已经修改完成（内核态），然后从
+ 	kernel buffer通过一个CPU拷贝，直接拷贝到socket buffer：
+
+ 	a. 将传统的拷贝去掉两个环节, 然后增加一个环节，从kernel buffer直接到socket buffer（下面的X表示干掉这个环节）： 
+
+ 	Hard drive --(DMA)--> kernel buffer --(X)--> user buffer --(X)--> socket buffer --(DMA)--> protocol engine
+ 							   ↓ 											↑
+ 							   ↓                   							↑
+                               ↓     通过一次CPU拷贝，直接从内核态到内核态		↑
+                               ↓→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→↑
+
+
+    综述：mmap不是真正的零拷贝，相较于传统IO，减少了一次拷贝，状态的切换仍然是3次没变。
+
+
+ 四、sendFile
+
+ 	1 .Linux 2.1版本提供了sendFile函数：数据根本不经过用户态，直接从内核缓冲区进入到Socket Buffer, 同时，由于和用户态完全无关，就减少了一次上下文切换。
+
+ 	（1）用户态(user context) -> 内核态(kernel context) -> 用户态(user context)
+ 	（2）Hard drive --(DMA)--> kernel buffer --(CPU copy)--> socket buffer --(DMA copy)--> protocol engine 
+
+ 	综述：跟MMAP相比，少了一次用户态的切换，从原来的3次状态转换变成了2次状态转换，但是拷贝次数是一样的
+
+    2. sendFile优化
+
+       linux2.4版本中，对sendFile做了一些优化，避免了从内核缓冲区拷贝到Socket Buffer, 而是直接从kernel buffer拷贝到协议栈
+
+       但是：从kernel buffer 到 socket buffer依然有少量数据拷贝，socket buffer记录了kernel buffer的一些属性信息，比如长度、偏移量等，一般忽略
+
+       Hard drive --(DMA)--> Kernel buffer --(忽略的CPU拷贝)--> socket buffer ----> protocol engine
+       							    ↓ 													↑
+ 							   		↓       真正的数据直接从kernel buffer经过一次DMA拷贝	↑
+                               		↓      	到protocol engine		 					↑
+                               		↓→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→→↑
+
+
+
+
+ 五、零拷贝
+ 	 零拷贝是从操作系统的角度来说的，零拷贝就是内核缓冲区里没有重复的数据，kernel buffer中只有一份数据。 （硬盘中或者网络中也有同样的数据）
+
+ 	 零拷贝不仅仅带来更少的数据复制，还能带来其他的性能优势，例如更少的上下文切换，更少的CPU缓存伪共享以及无CPU校验和计算。
+
+
+ 六、mmap 与 sendFile 的区别
+
+ 	（1）mmap 适合小数据量的读写，sendFile适合大文件的传输
+ 	（2）mmap需要3次上下文切换，3次数据拷贝；sendFile需要2次上下文切换，最少为2次数据拷贝
+ 	（3）sendFile可以利用DMA方式，较少CPU拷贝，mmap则不能（必须从内核拷贝到Socket缓冲区）
+
+
+
+    

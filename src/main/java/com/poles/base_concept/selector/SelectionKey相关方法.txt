@@ -1,0 +1,13 @@
+一、SelectionKey的相关方法
+
+public abstract Selector selector(); // 获取与其关联的selector对象
+
+public abstract SelectableChanne channel(); //得到与之关联的通道， SocketChannel channel = (SocketChannel)key.channel();
+
+public final Object attachement(); //获取与之关联的共享数据， ByteBuffer byteBuffer = (ByteBuffer)key.attachment();
+
+public abstract SelectionKey interestOps(int ops);  //设置或改变监听事件
+
+public final boolean isAcceptable();  //是否可以建立连接
+public final boolean isReadable();  //是否可读
+public final boolean isWritable();  //是否可写

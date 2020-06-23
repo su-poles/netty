@@ -1,0 +1,27 @@
+一、ServerSocketChannel相关方法
+
+public static ServerSocketChannel open();   //得到一个ServerSocketChannle
+
+public final ServerSocketChannel bind(SocketAddress local)   //设置服务器端的监听接口：serverSocketChannel.socket().bind(new InetSocketAddress(6666));
+
+public final SelectableChannel configureBlocking(boolean block); //设置为阻塞或者非阻塞模式
+
+public SocketChannel accept();  //接受一个客户端连接，返回代表这个链接的通道对象
+
+public final SelectionKey register(Selector sel, int ops);  //向selector中注册当前通道，并设置监听事件
+    例1：serverSocketChannel.register(selector, SelectionKey.OP_ACCEPT);
+    例2：socketChannel.register(selector, SelectionKey.OP_READ, ByteBuffer.allocate(1024));
+
+
+二、SocketChannel相关方法
+
+SocketChannel, 网络IO通道，具体负责进行读写操作。NIO把缓冲区的数据写入通道，或者把通道里的数据读到缓冲区。
+public static SocketChannel open();   //得到一个SocketChannle
+public final SelectableChannel configureBlocking(boolean block); //设置为阻塞或者非阻塞模式
+public boolean connect(SocketAddress remote); //连接服务器
+public boolean finishConnect(); //如果上面的方法连接失败，接下来就要通过该方法完成连接操作
+public int write(ByteBuffer src);  //将数据写入通道
+public int read(ByteBuffer dst);   //从通道读取数据
+
+public final selectionKey register(Selector sel, int ops, Object att); //将当前通道注册到选择器，并设置监听事件，最后一个参数为共享数据对象（ByteBuffer对象）
+public final close();  //关闭通道
