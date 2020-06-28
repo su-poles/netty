@@ -13,6 +13,9 @@ import io.netty.handler.codec.http.websocketx.WebSocketServerProtocolHandler;
 import io.netty.handler.logging.LogLevel;
 import io.netty.handler.logging.LoggingHandler;
 import io.netty.handler.stream.ChunkedWriteHandler;
+import io.netty.handler.timeout.IdleStateHandler;
+
+import java.util.concurrent.TimeUnit;
 
 /**
 *********************************************************************
@@ -52,7 +55,9 @@ public class MyServer {
                          * 浏览器请求时使用websocket协议：ws://localhost:8080/hello, 那么这里要对hello进行处理
                          * WebSocketServerProtocolHandler 核心功能是将http协议升级为ws协议，才能保持长连接
                          */
-                        pipeline.addLast(new WebSocketServerProtocolHandler("/hello"));
+                        pipeline.addLast(new WebSocketServerProtocolHandler("/accept"));
+
+//                        pipeline.addLast(new IdleStateHandler(5, 5, 10, TimeUnit.SECONDS));
 
                         //自定义handler, 用于处理业务逻辑
                         pipeline.addLast(new MyTextWebSocketFrameHandler());

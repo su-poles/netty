@@ -6,6 +6,8 @@ import io.netty.channel.ChannelInitializer;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import io.netty.handler.codec.protobuf.ProtobufDecoder;
+import io.netty.handler.codec.protobuf.ProtobufEncoder;
 
 /**
 *********************************************************************
@@ -29,6 +31,7 @@ public class NettyClient {
 
                     @Override
                     protected void initChannel(SocketChannel ch) throws Exception {
+                        ch.pipeline().addLast("encoder", new ProtobufEncoder());
                         ch.pipeline().addLast(new NettyClienthandler());    //加入自定义的处理器（Handler）
                     }
                 });

@@ -8,6 +8,7 @@ import io.netty.channel.ChannelOption;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import io.netty.handler.codec.protobuf.ProtobufDecoder;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -58,6 +59,8 @@ public class NettyServer {
                             //来自客户端的通道，这里可以将通道加入一个集合
                             set.add(ch);
 
+                            //必须要指定对哪种对象进行几码
+                            ch.pipeline().addLast("decoder", new ProtobufDecoder(StudentPOJO.Student.getDefaultInstance()));
                             ch.pipeline().addLast(new NettyServerHandler());    //通过通道（客户端连接的通道）获取管道，然后将处理器追加到管道的最后面
                         }
                     });
