@@ -1,0 +1,34 @@
+一、原生NIO存在的问题
+（1）NIO的类库和API繁杂，使用麻烦：需要熟练掌握Selector、 ServerSocketChannel、SocketChannel、ByteBuffer等
+
+（2）需要具备其它的额外技能：需要熟悉Java多线程编程，因为NIO编程设计到Reactor模式，只有对多线程和网络编程非常熟悉，才能编写出高质量的NIO程序
+
+（3）开发工作量和难度都非常大：例如客户端面临断网重连、网络闪断、半包读写、失败缓存、网络拥塞、异常流的处理等等
+
+（4）JDK NIO 的 Bug: 例如臭名昭著的Epoll Buf， 它会导致Selector空轮询，最终导致 CPU 100%， JDK1.7版本该问题依旧存在，没有被根本解决。1.8跟1.7一样。
+
+（5）所以，如果要使用NIO，还是推荐使用netty
+
+   https://netty.io
+   Netty is an asynchronous event-driven network application framework for rapid development of maintainable high performance
+   protocol server & client.
+
+二、  Netty 是一个异步的、事件驱动的网络应用框架，能够快速的开发构建高性能的网络IO程序。
+
+(1) ES、Dubbo内部都使用了netty
+(2) JDK5 就支持netty4.x
+(3) netty的版本分为netty3.x、netty4.x、netty5.x , 但是netty5出现了重大bug，已经被官网废弃了，目前只能使用Netty4.x稳定版，如netty4.1.x
+    https://bintray.com/netty/downloads/netty/
+(4) 有点参见PPT--62页
+
+
+三、线程模型
+
+   1.单Reactor单线程
+   2.单Reactor多线程
+   3.主从Reactor多线程
+
+   netty线程模型，主要基于主从Reactor多线程模型，做了一定的改进，其中主从Reactor多线程模型有多个Reactor
+
+
+

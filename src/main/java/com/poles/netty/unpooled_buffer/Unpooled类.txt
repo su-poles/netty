@@ -1,0 +1,8 @@
+一、Unpooled类
+（1）Netty提供了一个专门用来操作缓冲区（即Netty的数据容器）的工具类
+（2）常用方法：public static ByteBuf copiedBuffer(CharSequence string, Charset charset)
+    功能：通过给定的数据和字符编码返回一个ByteBuf对象，类似于NIO中的ByteBuffer，但有点区别
+    ByteBuf content = Unpooled.copiedBuffer("Hello, 浏览器你好~~服务器端向你问好！", CharsetUtil.UTF_16);
+
+
+（3）
