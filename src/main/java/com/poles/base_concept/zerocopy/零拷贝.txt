@@ -19,8 +19,8 @@ PPT 第48页：
     //* 1. File file = new File("test.txt");
     //* 2. RandomAccessFile raf = new RandomAccessFile(file, "rw");    //创建RandomAccessFile对象，还没开始真正的拷贝
     //* 3.
-    //* 4. byte[] arr = new byte[(int)file.length()];    //创建一个自己数据，总大小为文件长度
-    //* 5. raf.read(arr);                                //写入字节数组， 开始真正的拷贝，文件从硬盘到内存
+    //* 4. byte[] arr = new byte[(int)file.length()];                   //创建一个字节数组，总大小为文件长度
+    //* 5. raf.read(arr);                                               //写入字节数组， 开始真正的拷贝，文件从硬盘到内存
     //* 6.
     //* 7. Socket socket = new ServerSocket(8080).accept();  //获取一个客户端连接
     //* 8. socket.getOutputStream().write(arr);              //通过网络发送给客户端

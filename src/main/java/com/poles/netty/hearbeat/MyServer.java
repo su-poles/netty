@@ -47,7 +47,7 @@ public class MyServer {
                          * 文档：Triggers an {@link IdleStateEvent} when a {@link Channel} has not performed
                          * read, write, or both operation for a while.
                          *
-                         * 当IdleStateEvent出发h后，就会传递给管道的下一个handler去处理，即调用下一个handler的userEventTriggered方法
+                         * 当IdleStateEvent出发后，就会传递给管道的下一个handler去处理，即调用下一个handler的userEventTriggered方法
                          */
                         pipeline.addLast(new IdleStateHandler(3, 5, 7, TimeUnit.SECONDS));
 
