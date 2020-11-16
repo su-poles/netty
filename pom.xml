@@ -37,22 +37,10 @@
       <artifactId>netty-all</artifactId>
       <version>4.1.20.Final</version>
     </dependency>
-      <dependency>
-          <groupId>org.junit.jupiter</groupId>
-          <artifactId>junit-jupiter</artifactId>
-          <version>RELEASE</version>
-          <scope>compile</scope>
-      </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter</artifactId>
-      <version>RELEASE</version>
-      <scope>compile</scope>
-    </dependency>
-    <dependency>
-      <groupId>org.junit.jupiter</groupId>
-      <artifactId>junit-jupiter</artifactId>
-      <version>RELEASE</version>
+      <version>5.7.0-M1</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
